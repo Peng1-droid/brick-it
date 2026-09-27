@@ -4,7 +4,7 @@ import type { PunkGrid, RGBAImage } from './core/detect';
 import { Viewer } from './viewer/scene';
 import { brickLinkXML, partsCSV } from './export/parts';
 import { brickLinkRemainderXML, orderSummary, pickABrickFiles } from './export/order';
-import { icon } from './export/pdf';
+import { icon } from './export/partIcon';
 import { renderHex } from './core/palette';
 import type { BuildReply, BuildRequest } from './worker/build.worker';
 import { setupSculpture } from './sculpture/studio';
