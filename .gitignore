@@ -5,3 +5,5 @@ out
 real/
 .claude/
 .npm-cache/
+.env.local
+.env.*.local

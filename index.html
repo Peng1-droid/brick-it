@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Brick It</title>
-  <meta name="description" content="Turn your NFT artwork into a voxel relief you can build: 3D build animation, PDF instructions and a BrickLink parts list. Free, and your image never leaves your browser.">
+  <meta name="description" content="Turn your NFT artwork into an upright voxel bust with LEGO parts, 3D previews and PDF instructions. Local image processing, with optional AI generation.">
   <meta name="theme-color" content="#B4DBF1">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Brick It">
-  <meta property="og:description" content="Turn your NFT artwork into a voxel relief you can build: 3D build animation, PDF instructions and a BrickLink parts list. Free, and your image never leaves your browser.">
+  <meta property="og:description" content="Turn your NFT artwork into an upright voxel bust with LEGO parts, 3D previews and PDF instructions. Local image processing, with optional AI generation.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Brick It">
   <meta name="twitter:description" content="Turn your NFT artwork into a voxel relief you can build.">
@@ -29,11 +29,11 @@
 
     <section class="panel" id="input-panel">
       <div class="art-settings">
-  <label>Build style <select id="build-mode"><option value="artwork">NFT artwork relief</option><option value="punk">Classic CryptoPunk bust</option></select></label>
+  <label>Build style <select id="build-mode"><option value="sculpture">Upright voxel bust</option><option value="artwork">Flat artwork relief</option><option value="punk">Classic CryptoPunk bust</option></select></label>
   <label>Detail <select id="resolution"><option value="16">16 voxels</option><option value="24" selected>24 voxels</option><option value="32">32 voxels</option></select></label>
   <label>Relief depth <select id="depth"><option value="1">Flat mosaic</option><option value="4" selected>4 plates</option><option value="8">8 plates</option></select></label>
 </div>
-<p class="privacy">Artwork mode preserves the full image on a solid backing. Brighter colours rise higher; this is a stylized relief, not a reconstructed sculpture. Detail and depth apply to artwork mode. Animated images use one frame.</p>
+<p class="privacy">Upright bust mode keeps your artwork on the front and adds depth, like the original Punk builds. Upload an image, inspect the voxels, then create your bricks. The detail and relief settings above apply only to flat artwork mode.</p>
 <div class="choose">
         <form class="by-number" id="by-number" autocomplete="off" novalidate>
           <label for="punk-number" class="drop-title">Type your Punk #</label>
@@ -51,12 +51,48 @@
           <span class="drop-sub"><u>Choose an image</u> or paste it. PNG, JPG, WebP or GIF. Use the artwork image, not a marketplace page.</span>
         </label>
       </div>
-      <p class="privacy"><strong>Nothing leaves your browser.</strong> Your number or image is used on your device only: no upload, no server, no AI.</p>
+      <p class="privacy"><strong>Busts, reliefs and model imports stay on your device.</strong> Only the optional OpenRouter button sends artwork to an AI provider.</p>
       <div class="examples">
         <span>Try a CryptoPunk artwork example:</span>
         <div id="examples" class="example-row"></div>
       </div>
       <p class="error" id="error" role="alert" hidden></p>
+    </section>
+
+    <section class="panel sculpture-panel" id="sculpture-panel" aria-label="Sculpture workshop">
+      <h2>Shape your voxel bust</h2>
+      <p>Keep the front of your artwork and give it depth. Transparent cutouts work best. For a solid background, removal uses the top-left colour and only removes matching areas connected to the image edge.</p>
+      <div class="art-settings">
+        <label>Voxel detail <select id="sculpture-detail"><option value="16">16 · fewer bricks</option><option value="24" selected>24 · balanced</option><option value="32">32 · more detail</option></select></label>
+        <label>Bust depth <select id="sculpture-thickness"><option value="4">4 voxels</option><option value="8" selected>8 voxels</option><option value="12">12 voxels</option><option value="16">16 voxels</option></select></label>
+        <label class="check-setting"><input id="rounded-back" type="checkbox" checked>Round the back edges</label>
+        <label class="check-setting"><input id="remove-background" type="checkbox" checked>Remove flat background</label>
+      </div>
+      <details class="sculpture-import"><summary>Or start with a 3D model</summary>
+        <p>Import a self-contained GLB, OBJ geometry or STL (up to 25 MB / 100,000 triangles). GLB keeps embedded colours and textures; OBJ/STL may use a single colour. Closed meshes work best. Imported models use voxel detail and orientation, not bust depth or background removal.</p>
+        <label>Choose model <input id="model-file" type="file" accept=".glb,.obj,.stl"></label>
+        <button id="sculpture-demo" class="ghost" type="button">Try a demo robot</button>
+        <div class="art-settings">
+          <label>Tilt X <select id="rotate-x"><option>0</option><option>90</option><option>180</option><option>270</option></select></label>
+          <label>Turn Y <select id="rotate-y"><option>0</option><option>90</option><option>180</option><option>270</option></select></label>
+          <label>Roll Z <select id="rotate-z"><option>0</option><option>90</option><option>180</option><option>270</option></select></label>
+        </div>
+      </details>
+      <details class="sculpture-ai"><summary>Experimental: imagine a sculpture with OpenRouter</summary>
+        <p>A vision model interprets the image as simple 3D shapes. This is a stylized guess, including the unseen back; it is not a detailed reconstruction. The upright bust above needs no AI.</p>
+        <p id="ai-setup">Checking local OpenRouter setup…</p>
+        <label>Artwork for AI <input id="ai-image" type="file" accept="image/png,image/jpeg,image/webp"></label>
+        <button id="generate-sculpture" class="ghost" type="button">Send image &amp; generate with OpenRouter</button>
+      </details>
+      <div class="sculpture-actions">
+        <button id="voxelize" class="go" type="button">Preview voxels</button>
+        <button id="show-source" class="ghost" type="button">Original model</button>
+        <button id="show-voxels" class="ghost" type="button">Voxel preview</button>
+        <button id="make-bricks" class="go" type="button">Create LEGO build</button>
+      </div>
+      <p id="sculpture-status" role="status" aria-live="polite">Upload artwork above to begin, or try a 3D model.</p>
+      <canvas id="sculpture-canvas" aria-label="Rotatable sculpture preview"></canvas>
+      <p class="privacy">Drag to turn · scroll or pinch to zoom. Clear support columns are added when creating bricks. Inspect the final structural checks before ordering.</p>
     </section>
 
     <nav class="secnav" id="secnav" hidden aria-label="Sections">
@@ -165,7 +201,7 @@
 
     <section class="faq">
       <h2>Questions</h2>
-      <details><summary>Is my image uploaded anywhere?</summary><p>No. Everything happens in your browser: reading the image, designing the model, the 3D view, the PDF and the video. There is no server and no AI behind this site, and nothing about your Punk is stored or sent.</p></details>
+      <details><summary>Is my image uploaded anywhere?</summary><p>Upright busts, flat reliefs, model imports and exports run on your device. Only the optional OpenRouter generation button sends the selected artwork to your configured AI provider and uses your OpenRouter credits.</p></details>
       <details><summary>Can I really build it?</summary><p>Every model is checked by computer: all pieces are standard parts in real colours, every piece is attached to the base (0 floating), no two pieces overlap (0 collisions) and the centre of mass sits over the base. The site shows these checks for your model and says so plainly if one fails. Models have not been built with real bricks yet, so treat your first build as a test. A few colours can be hard to find in large plates.</p></details>
       <details><summary>How do I get the bricks?</summary><p>Under “Order the bricks”: download the Pick a Brick file and upload it on LEGO Pick a Brick (“Upload List”), and/or download the BrickLink list and upload it on BrickLink (Want → Upload). The site tells you how many lots LEGO sells, and “Prefer parts available at LEGO” rebuilds your model with those parts only. You order and pay on those sites, never here.</p></details>
       <details><summary>What are the clear pieces?</summary><p>Some Punks have details that touch nothing, like cigarette smoke. They are held up by small clear bricks, and the site tells you when it adds them.</p></details>

@@ -7,6 +7,7 @@ import { brickLinkRemainderXML, orderSummary, pickABrickFiles } from './export/o
 import { icon } from './export/pdf';
 import { renderHex } from './core/palette';
 import type { BuildReply, BuildRequest } from './worker/build.worker';
+import { setupSculpture } from './sculpture/studio';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const worker = new Worker(new URL('./worker/build.worker.ts', import.meta.url), { type: 'module' });
@@ -75,10 +76,12 @@ async function exampleImage(file: string): Promise<RGBAImage> {
   return fileToImage(await res.blob());
 }
 
-async function start(image: RGBAImage, mode: 'artwork' | 'punk' = $<HTMLSelectElement>('build-mode').value as 'artwork' | 'punk') {
+async function start(image: RGBAImage, mode: 'artwork' | 'punk' | 'sculpture' = $<HTMLSelectElement>('build-mode').value as 'artwork' | 'punk' | 'sculpture') {
   const generation = ++activeBuild;
   sourceImage = image;
   $<HTMLSelectElement>('build-mode').value = mode;
+  $('sculpture-panel').hidden = mode !== 'sculpture';
+  if (mode === 'sculpture') { studio.setImage(image); return; }
   showError(null);
   $('result').hidden = false;
   $('sec-bust').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -162,7 +165,10 @@ function renderChecks(m: Model, ms: number) {
 
 // ---------- wiring ----------
 const drop = $('drop'), file = $<HTMLInputElement>('file');
-for (const id of ['build-mode', 'resolution', 'depth']) $(id).addEventListener('change', () => { if (sourceImage) void start(sourceImage); });
+for (const id of ['build-mode', 'resolution', 'depth']) $(id).addEventListener('change', () => {
+  $('sculpture-panel').hidden = $<HTMLSelectElement>('build-mode').value !== 'sculpture';
+  if (sourceImage) void start(sourceImage);
+});
 drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } });
 file.addEventListener('change', () => { const f = file.files?.[0]; if (f) fileToImage(f).then(start, () => showError('We couldn’t open this file. Use a PNG or JPG image.')); file.value = ''; });
 ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -446,6 +452,15 @@ for (const ex of examples) {
   b.addEventListener('click', () => exampleImage(ex.file).then(start, () => showError('We couldn’t load this example.')));
   $('examples').append(b);
 }
+const studio = setupSculpture(async prepared => {
+  const generation = ++activeBuild;
+  showError(null); $('result').hidden = false; busy('Fitting bricks to your sculpture…');
+  const r = await build({ size, grid: prepared, preferLego });
+  if (generation !== activeBuild) return;
+  if (!r.ok) { busy(null); showError(r.message); throw new Error(r.message); }
+  grid = r.grid; models.clear(); models.set(mkey(size), r.model);
+  drawGrid(grid); show(r.model, r.ms); $('sec-bust').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 setSize(size);
 
 // dev/test hook: lets scripts drive the viewer frame by frame

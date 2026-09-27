@@ -2,6 +2,7 @@
 import { buildModel, type Model, type SizeId } from '../core/build';
 import { detectPunk, DetectError, type PunkGrid, type RGBAImage } from '../core/detect';
 import { voxelizeArtwork, buildArtwork } from '../core/artwork';
+import { buildSculpture } from '../core/sculpture';
 
 export type BuildRequest = { id: number; size: SizeId; image?: RGBAImage; grid?: PunkGrid; preferLego?: boolean; mode?: 'artwork' | 'punk'; resolution?: number; depth?: number };
 export type BuildReply =
@@ -13,7 +14,7 @@ self.onmessage = (e: MessageEvent<BuildRequest>) => {
   const t = performance.now();
   try {
     const grid = e.data.grid ?? (e.data.mode === 'punk' ? detectPunk(image!) : voxelizeArtwork(image!, e.data.resolution, e.data.depth));
-    const model = grid.artwork ? buildArtwork(grid, size, !!e.data.preferLego) : buildModel(grid, size, { preferLego: !!e.data.preferLego });
+    const model = grid.sculpture ? buildSculpture(grid.sculpture, size, !!e.data.preferLego) : grid.artwork ? buildArtwork(grid, size, !!e.data.preferLego) : buildModel(grid, size, { preferLego: !!e.data.preferLego });
     (self as unknown as Worker).postMessage({ id, ok: true, grid, model, ms: performance.now() - t } satisfies BuildReply);
   } catch (err) {
     const code = err instanceof DetectError ? err.code : 'error';

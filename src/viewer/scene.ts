@@ -134,7 +134,7 @@ export class Viewer {
       this.setLabel(this.opts.label ?? '');
     }
     // shadows sized to the model
-    const s = (this.tl.reliefSpan ?? this.tl.height) / 42;
+    const s = (this.tl.reliefSpan ?? this.tl.sculptureSpan ?? this.tl.height) / 42;
     Object.assign(this.sun.shadow.camera, { left: -40 * s, right: 40 * s, top: 50 * s, bottom: -20 * s, near: 1, far: 260 * s });
     this.sun.shadow.camera.updateProjectionMatrix();
     this.sun.position.set(36 * s, 80 * s, 52 * s);
@@ -220,7 +220,7 @@ export class Viewer {
   private finish() {
     this.controls.enabled = true;
     this.controls.autoRotate = true; this.controls.autoRotateSpeed = 0.8;
-    const s = (this.tl!.reliefSpan ?? this.tl!.height) / 42;
+    const s = (this.tl!.reliefSpan ?? this.tl!.sculptureSpan ?? this.tl!.height) / 42;
     this.controls.minDistance = 40 * s; this.controls.maxDistance = 320 * s;
     this.controls.maxPolarAngle = Math.PI * 0.53;
     this.dirty = true;

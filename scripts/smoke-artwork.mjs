@@ -8,6 +8,7 @@ try {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://127.0.0.1:5173');
+  await page.locator('#build-mode').selectOption('artwork');
   const png = new PNG({ width: 120, height: 80 });
   for (let y = 0; y < 80; y++) for (let x = 0; x < 120; x++) {
     const o = (y * 120 + x) * 4;

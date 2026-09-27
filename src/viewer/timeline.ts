@@ -7,6 +7,7 @@ export const DROP = 0.32;           // seconds a piece takes to land
 
 export interface Timeline {
   reliefSpan?: number;
+  sculptureSpan?: number;
   start: Float32Array;              // when each piece starts falling
   isTop: Uint8Array;                // built in the air, then lowered onto the head
   hasTop: boolean;
@@ -40,7 +41,8 @@ export function makeTimeline(m: Model): Timeline {
   const capDown: [number, number] = [11.7, 13.3];
   const hero = hasTop ? 13.3 : 11.8;
   const reliefSpan = m.layout === 'relief' ? Math.max(m.dims[0], m.dims[1]) / 0.8 : undefined;
-  return { reliefSpan, start, isTop, hasTop, capUp: 13 * s, capDown, hero, end: hero + 3.3, fall: reliefSpan ? reliefSpan * 0.2 : 7 * s, height, order };
+  const sculptureSpan = m.layout === 'sculpture' ? Math.max(m.dims[0], m.dims[1], m.dims[2]) / 0.8 : undefined;
+  return { reliefSpan, sculptureSpan, start, isTop, hasTop, capUp: 13 * s, capDown, hero, end: hero + 3.3, fall: reliefSpan ? reliefSpan * 0.2 : 7 * s, height, order };
 }
 
 export const ease = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
@@ -66,6 +68,7 @@ export function pieceState(tl: Timeline, i: number, t: number): { visible: boole
 /** Camera during the build: orbit angle, elevation, distance and look-at height (units). */
 export function buildCamera(tl: Timeline, t: number): { az: number; el: number; dist: number; ty: number } {
   if (tl.reliefSpan) return { az: -12 + 24 * Math.min(1, t / tl.end), el: 62, dist: tl.reliefSpan * 2.6, ty: tl.height / 2 };
+  if (tl.sculptureSpan) return { az: -25 + 40 * Math.min(1, t / tl.end), el: 22, dist: tl.sculptureSpan * 2.8, ty: tl.height / 2 };
   const s = tl.height / 42;
   if (t < tl.hero) {
     const u = t / tl.hero, k = easeIO(Math.min(1, t / 7));
