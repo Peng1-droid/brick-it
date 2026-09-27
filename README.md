@@ -1,4 +1,20 @@
-# Punk to Bricks
+# Brick It
+
+This fork adds general NFT artwork builds to [Punk to Bricks](https://github.com/hs7j4yk4sz-boop/punk-to-bricks). Upload, drop, or paste a PNG, JPEG, WebP, or GIF image from any collection. The default **Upright voxel bust** preserves the front silhouette and adds 4–16 voxels of depth, with optional rounded back edges. Alpha creates the cutout; optional flat-background removal flood-fills colours matching the top-left corner from the image edges. It does not recognize subjects or reconstruct unseen geometry. Use a transparent cutout for complex backgrounds. Animated files use one decoded frame.
+
+Choose 16, 24, or 32 voxels on the longest image/mesh edge. Inspect the rotatable voxel preview, adjust depth, then choose **Create LEGO build**. Unsupported columns gain visible clear supports down to a two-layer base. Mini uses one stud per voxel and alternating 2/3-plate heights; XL uses two studs and five plates per voxel. The final parts feed the structural checker, 3D animation, PDF, ZIP kit and shopping lists. Models remain computer-checked, not physically build-tested. Clear supports may substantially change the appearance and piece count.
+
+**Other modes:** Flat artwork relief makes a horizontal brightness-based panel, with transparent pixels composited on white. Classic CryptoPunk bust retains the original algorithm and is selected for Punk-number lookup. Download artwork first; general marketplace URLs, contract lookup and video NFTs are not supported.
+
+**3D models:** Import self-contained GLB, OBJ geometry or STL, up to 25 MB and 100,000 triangles. Orient the model before voxelizing. Embedded GLB textures are sampled per triangle; OBJ material sidecars, external resources, compressed textures/geometry, animation, skinning and instancing are not supported. Closed meshes fill with solid interior voxels; open surfaces may remain shells. A 30,000-piece limit prevents oversized builds.
+
+**Optional OpenRouter experiment:** Copy `.env.example` to `.env.local`, set `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` (a vision model supporting JSON-schema structured outputs), and restart `npm run dev`. Never prefix secrets with `VITE_`. The local server keeps the API key out of browser bundles. Only clicking **Send image & generate with OpenRouter** sends the selected artwork to OpenRouter and may incur charges. The model returns validated primitive shapes, not executable code or a detailed reconstructed mesh. The generated interpretation can then be voxelized like an imported model. No live generation was tested without a configured key; the adapter is covered with mocked-provider tests. The AI endpoint is local-development-only; static deployments retain the fully local bust, relief and mesh-upload features. A public AI deployment would require an authenticated backend with usage controls.
+
+OpenRouter references: [image input](https://openrouter.ai/docs/guides/overview/multimodal/image-understanding) and [structured outputs](https://openrouter.ai/docs/guides/features/structured-outputs).
+
+Development: Node 22.12+ (or Node 24), `npm ci`, `npm run dev`. Validate with `npm test` and `npm run build`. Browser smoke scripts: `node scripts/smoke-artwork.mjs` and `node scripts/smoke-sculpture.mjs` (local server on port 5173 and Microsoft Edge required).
+
+## Original project documentation
 
 Turn your CryptoPunk into a brick bust you can really build.
 

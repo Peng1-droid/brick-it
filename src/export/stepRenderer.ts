@@ -33,7 +33,7 @@ export class StepRenderer {
     this.gl.toneMapping = THREE.ACESFilmicToneMapping; this.gl.toneMappingExposure = 1.05;
     this.gl.setClearColor(0xffffff, 0);
     const ys = m.pieces.flatMap(p => [p.y, p.y + p.h]);
-    this.scale = ((Math.max(...ys) - Math.min(...ys)) * PL) / 42;
+    this.scale = m.layout ? Math.max(...m.dims) / 0.8 / 42 : ((Math.max(...ys) - Math.min(...ys)) * PL) / 42;
     const s = this.scale;
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.4));
     const sun = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -112,6 +112,7 @@ export class StepRenderer {
     this.outline([]);
     this.show(() => 2);
     const s = this.scale;
+    if (this.m.layout) return this.shoot(25, this.m.layout === 'relief' ? 62 : 22, 125 * s, this.m.dims[2] / 0.8 / 2);
     return this.shoot(28, 12, 140 * s, 19 * s);
   }
 
@@ -121,6 +122,7 @@ export class StepRenderer {
     this.outline(ids);
     const s = this.scale;
     const topY = Math.max(...ids.map(i => (this.m.pieces[i].y + this.m.pieces[i].h) * PL));
+    if (this.m.layout) return this.shoot(25, this.m.layout === 'relief' ? 65 : 35, 130 * s, this.m.dims[2] / 0.8 / 2);
     return this.shoot(32, 32, 125 * s, Math.max(6 * s, Math.min(22 * s, topY - 4 * s)));
   }
 

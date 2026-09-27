@@ -5,7 +5,6 @@ import type { PunkGrid } from '../core/detect';
 import { easeIO } from '../viewer/timeline';
 import { SKY, Viewer } from '../viewer/scene';
 import { Book } from './book';
-import { drawPages, PAGE_SIZE } from './pdf';
 import { makeSoundtrack } from './sound';
 
 export type VideoFormat = 'square' | 'story';
@@ -23,6 +22,7 @@ export interface VideoOptions { format: VideoFormat; label: string; small?: bool
 
 /** A sample of the booklet's pages for the flip: cover, steps spread out, first inventory page. */
 async function bookPages(m: Model, grid: PunkGrid, label: string, width: number, onProgress: (f: number) => void): Promise<HTMLCanvasElement[]> {
+  const { drawPages, PAGE_SIZE } = await import('./pdf');
   const steps = m.steps.length, want = new Set<number>([1, steps + 2]);
   const k = Math.min(16, steps);
   for (let i = 0; i < k; i++) want.add(2 + Math.round((i * (steps - 1)) / Math.max(1, k - 1)));
@@ -38,6 +38,7 @@ async function bookPages(m: Model, grid: PunkGrid, label: string, width: number,
 export async function recordVideo(m: Model, grid: PunkGrid, o: VideoOptions): Promise<{ blob: Blob; ext: string }> {
   const kind = videoMime();
   if (!kind) throw new Error('This browser can’t record video. Try Chrome, Edge, Firefox or Safari 14.1+.');
+  const { PAGE_SIZE } = await import('./pdf');
   const k = o.small ? 2 / 3 : 1;
   const W = Math.round(1080 * k), H = Math.round((o.format === 'story' ? 1920 : 1080) * k);
   // 3D frames off-screen, composed with titles on a 2D canvas that is recorded
