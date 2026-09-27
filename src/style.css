@@ -285,3 +285,7 @@ dialog#order-panel { max-height: calc(100dvh - 24px); overflow: auto; }
 .shot2 { position: relative; max-width: 420px; display: block; }
 .shot2 .ring { position: absolute; left: 0; right: 0; top: 40%; bottom: 11%; border: 4px solid #F5B800; border-radius: 12px; box-shadow: 0 0 0 8px rgba(245,184,0,.25); }
 .shots figcaption { font-size: 11.5px; color: var(--muted); }
+
+.art-settings { display:flex; flex-wrap:wrap; gap:20px; margin-bottom:16px; }
+.art-settings label { display:grid; gap:6px; font-weight:700; }
+.art-settings select { font:inherit; padding:10px 12px; border:2px solid currentColor; border-radius:8px; background:white; }

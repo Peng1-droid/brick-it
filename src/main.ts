@@ -20,6 +20,8 @@ const viewer = new Viewer($('view'), { lowPoly: isPhone, label: '' });
 viewer.onFinished = () => { $('hint').hidden = false; };
 
 let grid: PunkGrid | null = null;
+let sourceImage: RGBAImage | null = null;
+let activeBuild = 0;
 let size: SizeId = 'xl';
 // one model per size and "prefer LEGO parts" choice
 const models = new Map<string, Model>();
@@ -63,7 +65,7 @@ $('by-number').addEventListener('submit', async e => {
   let img: RGBAImage;
   try { img = await punkByNumber(n); } catch { busy(null); showError('We couldn’t load the Punks. Check your connection, or drop your image instead.'); return; }
   const plate = $<HTMLInputElement>('punkno'); plate.value = String(n);
-  await start(img);
+  await start(img, 'punk');
   viewer.setLabel(plateLabel());
 });
 
@@ -73,12 +75,16 @@ async function exampleImage(file: string): Promise<RGBAImage> {
   return fileToImage(await res.blob());
 }
 
-async function start(image: RGBAImage) {
+async function start(image: RGBAImage, mode: 'artwork' | 'punk' = $<HTMLSelectElement>('build-mode').value as 'artwork' | 'punk') {
+  const generation = ++activeBuild;
+  sourceImage = image;
+  $<HTMLSelectElement>('build-mode').value = mode;
   showError(null);
   $('result').hidden = false;
   $('sec-bust').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  busy('Reading your Punk…');
-  const r = await build({ size, image, preferLego });
+  busy('Voxelizing your artwork…');
+  const r = await build({ size, image, preferLego, mode, resolution: +$<HTMLSelectElement>('resolution').value, depth: +$<HTMLSelectElement>('depth').value });
+  if (generation !== activeBuild) return;
   if (!r.ok) { busy(null); $('result').hidden = !grid; showError(r.message); return; }
   grid = r.grid;
   models.clear();
@@ -88,6 +94,7 @@ async function start(image: RGBAImage) {
 }
 
 async function setSize(s: SizeId) {
+  const generation = ++activeBuild;
   size = s;
   document.querySelectorAll<HTMLButtonElement>('.size').forEach(b => b.setAttribute('aria-checked', String(b.dataset.size === s)));
   if (!grid) return;
@@ -95,6 +102,7 @@ async function setSize(s: SizeId) {
   if (!have) {
     busy(`Building the ${s === 'xl' ? 'XL' : 'Mini'} model${preferLego ? ' with parts LEGO sells' : ''}…`);
     const r = await build({ size: s, grid, preferLego });
+    if (generation !== activeBuild) return;
     if (!r.ok) { busy(null); showError(r.message); return; }
     models.set(mkey(s), r.model);
     show(r.model, r.ms);
@@ -115,6 +123,7 @@ function show(m: Model, ms: number) {
 
 // ---------- panels ----------
 function busy(text: string | null) {
+  document.querySelectorAll<HTMLButtonElement | HTMLSelectElement>('.size, .art-settings select, #prefer-lego').forEach(b => { b.disabled = text !== null; });
   $('busy').hidden = text === null;
   if (text) $('busy-text').textContent = text;
 }
@@ -122,10 +131,12 @@ function showError(msg: string | null) {
   const e = $('error'); e.hidden = !msg; e.textContent = msg ?? '';
 }
 function drawGrid(g: PunkGrid) {
-  const c = $<HTMLCanvasElement>('grid'), x = c.getContext('2d')!, k = c.width / 24;
+  const c = $<HTMLCanvasElement>('grid'), x = c.getContext('2d')!;
+  c.width = g.cells[0].length * 4; c.height = g.cells.length * 4;
+  const k = 4;
   x.fillStyle = g.background ? rgbToHex(g.background) : '#638596'; x.fillRect(0, 0, c.width, c.height);
   g.cells.forEach((row, r) => row.forEach((v, col) => { if (v >= 0) { x.fillStyle = rgbToHex(g.colors[v].rgb); x.fillRect(col * k, r * k, k, k); } }));
-  $('read-text').textContent = `24 × 24 pixels, ${g.colors.length} colours`;
+  $('read-text').textContent = `${g.cells[0].length} × ${g.cells.length} voxels, ${g.colors.length} colours`;
 }
 function renderChecks(m: Model, ms: number) {
   const c = m.checks;
@@ -151,6 +162,7 @@ function renderChecks(m: Model, ms: number) {
 
 // ---------- wiring ----------
 const drop = $('drop'), file = $<HTMLInputElement>('file');
+for (const id of ['build-mode', 'resolution', 'depth']) $(id).addEventListener('change', () => { if (sourceImage) void start(sourceImage); });
 drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); file.click(); } });
 file.addEventListener('change', () => { const f = file.files?.[0]; if (f) fileToImage(f).then(start, () => showError('We couldn’t open this file. Use a PNG or JPG image.')); file.value = ''; });
 ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -158,7 +170,7 @@ file.addEventListener('change', () => { const f = file.files?.[0]; if (f) fileTo
 drop.addEventListener('drop', e => {
   const f = [...((e as DragEvent).dataTransfer?.files ?? [])].find(f => f.type.startsWith('image/'));
   if (f) fileToImage(f).then(start, () => showError('We couldn’t open this file. Use a PNG or JPG image.'));
-  else showError('That doesn’t look like an image. Drop a PNG or JPG of your Punk.');
+  else showError('That doesn’t look like an image. Drop a PNG or JPG of your artwork.');
 });
 window.addEventListener('paste', e => {
   const f = [...(e.clipboardData?.files ?? [])].find(f => f.type.startsWith('image/'));
@@ -172,7 +184,7 @@ $('punkno').addEventListener('input', () => viewer.setLabel(plateLabel()));  // 
 
 // ---------- exports ----------
 const current = () => models.get(mkey(size)) ?? null;
-const baseName = () => `${plateLabel() ? 'punk-' + plateLabel().slice(1) : 'my-punk'}-${size}`;
+const baseName = () => `${plateLabel() ? 'nft-' + plateLabel().slice(1) : 'my-nft'}-${size}`;
 function save(blob: Blob, name: string) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = name;
@@ -277,7 +289,7 @@ $('dl-kit').addEventListener('click', () => run('Kit', async () => {
   const m = current()!, name = baseName();
   progress('Drawing the instructions…', 0);
   const pdf = await makeInstructions(m, grid!, { label: plateLabel(), renderSize: isPhone ? 800 : 1100, onProgress: (d, t) => progress(`Drawing page ${d} of ${t}…`, d / t) });
-  const readme = [`${name} — made with Punk to Bricks`, '', `${m.checks.pieces} pieces · ${m.steps.length} steps · ${m.bom.length} lots · about ${m.dims.join(' × ')} cm`, '',
+  const readme = [`${name} — made with NFT to Bricks`, '', `${m.checks.pieces} pieces · ${m.steps.length} steps · ${m.bom.length} lots · about ${m.dims.join(' × ')} cm`, '',
     `${name}-instructions.pdf   step-by-step instructions, one page per layer`, `${name}-parts.csv   parts list (BrickLink part and colour numbers)`, '',
     'To order the bricks, use "Buy the bricks" on the site: it makes your LEGO Pick a Brick and BrickLink lists.', '',
     'Models are generated automatically and checked by software only. They have NOT been physically built. Provided "as is", without warranty of any kind.',
@@ -408,13 +420,13 @@ const secObserver = new IntersectionObserver(es => {
 ['sec-bust', 'sec-manual', 'sec-buy'].forEach(id => secObserver.observe($(id)));
 function renderBustSub() {
   const m = current(); if (!m) return;
-  $('bust-sub').textContent = `${plateLabel() ? `Punk ${plateLabel()} · ` : ''}${m.size === 'xl' ? 'XL' : 'Mini'} · built and checked in your browser`;
+  $('bust-sub').textContent = `${plateLabel() ? `Token ${plateLabel()} · ` : ''}${m.size === 'xl' ? 'XL' : 'Mini'} · built and checked in your browser`;
 }
 function shareLink() {
   const m = current();
   const text = m
-    ? `I turned my CryptoPunk into a ${m.checks.pieces.toLocaleString('en')}-piece brick bust you can really build 🧱\n\nMade with Punk to Bricks, inspired by @victormustar's Microduck.`
-    : 'Turn your CryptoPunk into a brick bust you can really build 🧱';
+    ? `I turned my NFT artwork into a ${m.checks.pieces.toLocaleString('en')}-piece brick build you can really build 🧱\n\nMade with NFT to Bricks, inspired by @victormustar's Microduck.`
+    : 'Turn your NFT artwork into a brick build you can really build 🧱';
   const url = location.origin + location.pathname;
   $<HTMLAnchorElement>('share-x').href = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
 }

@@ -66,7 +66,7 @@ function footer(x: CanvasRenderingContext2D, n: number, title: string) {
   x.textAlign = 'right'; x.fillText(String(n), PW - 60, PH - 36); x.textAlign = 'left';
 }
 function punkCanvas(g: PunkGrid, px: number) {
-  const c = document.createElement('canvas'); c.width = c.height = 24 * px;
+  const c = document.createElement('canvas'); c.width = g.cells[0].length * px; c.height = g.cells.length * px;
   const x = c.getContext('2d')!;
   x.fillStyle = g.background ? rgbToHex(g.background) : '#638596'; x.fillRect(0, 0, c.width, c.height);
   g.cells.forEach((row, r) => row.forEach((v, col) => { if (v >= 0) { x.fillStyle = rgbToHex(g.colors[v].rgb); x.fillRect(col * px, r * px, px, px); } }));
@@ -91,7 +91,7 @@ export class PageMaker {
     this.steps = m.steps.length;
     this.total = 1 + m.steps.length + this.NB;
     this.r = new StepRenderer(m, o.renderSize ?? 1100, o.label);
-    this.title = `${o.label ? `Punk ${o.label}` : 'Your Punk'} · ${m.size === 'xl' ? 'XL' : 'Mini'} brick bust`;
+    this.title = `${o.label ? `Token ${o.label}` : 'Your artwork'} · ${m.size === 'xl' ? 'XL' : 'Mini'} brick build`;
   }
   /** "Cover", "Step 12", "Parts 1/2" */
   label(n: number): string {
@@ -106,17 +106,17 @@ export class PageMaker {
   const grad = x.createLinearGradient(0, 0, 0, PH); grad.addColorStop(0, '#7C95A5'); grad.addColorStop(1, '#5A7282');
   x.fillStyle = grad; x.fillRect(0, 0, PW, PH);
   x.drawImage(r.cover(), 540, 30, 1080, 1080);
-  x.drawImage(punkCanvas(grid, 15), 80, 330, 360, 360);
+  const art = punkCanvas(grid, 15), fit = 360 / Math.max(art.width, art.height); x.drawImage(art, 80, 330, art.width * fit, art.height * fit);
   x.strokeStyle = '#fff'; x.lineWidth = 6; x.strokeRect(80, 330, 360, 360);
-  x.fillStyle = '#fff'; x.font = `bold 84px ${FONT}`; x.fillText(o.label ? `PUNK ${o.label}` : 'YOUR PUNK', 70, 150);
-  x.font = `44px ${FONT}`; x.fillText(`Brick edition · ${m.size === 'xl' ? 'XL' : 'Mini'} bust`, 74, 215);
+  x.fillStyle = '#fff'; x.font = `bold 84px ${FONT}`; x.fillText(o.label ? `TOKEN ${o.label}` : 'YOUR ARTWORK', 70, 150);
+  x.font = `44px ${FONT}`; x.fillText(`Brick edition · ${m.size === 'xl' ? 'XL' : 'Mini'} build`, 74, 215);
   x.font = `bold 40px ${FONT}`; x.fillText(`${c.pieces.toLocaleString('en')} pieces`, 80, 800);
   x.font = `32px ${FONT}`;
   x.fillText(`${m.steps.length} steps · ${c.collisions} collisions · ${c.floating} floating`, 80, 850);
   x.fillText(`approx. ${m.dims[0]} × ${m.dims[1]} × ${m.dims[2]} cm`, 80, 895);
   x.font = `22px ${FONT}`; x.fillStyle = 'rgba(255,255,255,.85)';
   x.font = `19px ${FONT}`;
-  x.fillText('Made with Punk to Bricks · Unofficial fan project · Not affiliated with, sponsored or endorsed by the LEGO Group, BrickLink or the CryptoPunks project.', 80, 1024);
+  x.fillText('Made with NFT to Bricks · Unofficial fan project · Not affiliated with, sponsored or endorsed by the LEGO Group, BrickLink or the CryptoPunks project.', 80, 1024);
   x.fillText('LEGO® is a trademark of the LEGO Group. Parts data: Rebrickable. Computer-checked only, not physically built. Provided "as is", without warranty.', 80, 1052);
       return pg;
     }
@@ -183,7 +183,7 @@ export const PAGE_SIZE = [PW, PH] as const;
 export async function makeInstructions(m: Model, grid: PunkGrid, o: PageOptions & { onProgress?: (done: number, total: number) => void }): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [PW, PH], compress: true, hotfixes: ['px_scaling'] });
-  pdf.setProperties({ title: `${o.label ? `Punk ${o.label}` : 'Your Punk'} brick bust — instructions`, creator: 'Punk to Bricks' });
+  pdf.setProperties({ title: `${o.label ? `Token ${o.label}` : 'Your artwork'} brick build — instructions`, creator: 'NFT to Bricks' });
   await drawPages(m, grid, o, (pg, n, total) => {
     if (n > 1) pdf.addPage([PW, PH], 'landscape');
     pdf.addImage(pg.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, PW, PH, undefined, 'FAST');

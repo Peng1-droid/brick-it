@@ -5,6 +5,8 @@ import { deltaE, rgbDist, rgbToLab, type RGB } from './color';
 export interface RGBAImage { width: number; height: number; data: Uint8ClampedArray | Uint8Array }
 
 export interface PunkGrid {
+  /** General artwork uses a supported, horizontal voxel relief. */
+  artwork?: { depth: number };
   /** 24 rows × 24 cols; -1 = background, otherwise index into `colors` */
   cells: number[][];
   colors: { rgb: RGB; count: number }[];

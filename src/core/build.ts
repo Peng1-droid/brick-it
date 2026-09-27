@@ -48,6 +48,7 @@ export const SIZES_SPEC: Record<SizeId, SizeSpec> = {
 export interface BomLine { part: string; kind: Kind; name: string; color: number; colorName: string; hex: string; w: number; d: number; qty: number }
 
 export interface Model {
+  layout?: 'relief';
   size: SizeId;
   pieces: Piece[];
   steps: number[][];

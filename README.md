@@ -1,4 +1,14 @@
-# Punk to Bricks
+# NFT to Bricks
+
+This fork adds general NFT artwork voxelization to [Punk to Bricks](https://github.com/hs7j4yk4sz-boop/punk-to-bricks). Upload, drop, or paste a PNG, JPEG, WebP, or GIF image from any collection. Choose 16, 24, or 32 voxels on the longest edge and a flat mosaic or 4/8-plate relief. The full image is area-averaged with its aspect ratio preserved and matched to opaque LEGO colours; transparent areas are composited on white. Animated files use one decoded frame.
+
+The relief is a horizontal artwork panel on two interlocking backing layers. Brightness sets column height; it does not reconstruct a sculpture or unseen geometry. Every column has support underneath. Real plate layouts feed the existing 3D viewer, structural checker, PDF instructions, ZIP kit, BrickLink inventory, and LEGO availability tools. Mini uses one stud per pixel; XL uses two. Models remain computer-checked, not physically build-tested.
+
+Artwork uploads do not require a wallet or API key. Marketplace URLs, contract/token lookup outside CryptoPunks, video NFTs, and 3D model files are not supported. Download the artwork image first. The classic CryptoPunk bust algorithm remains available under Build style and is selected automatically for Punk number lookup. Detail and relief depth settings only affect artwork mode.
+
+Development: Node 22.12+ (or Node 24), `npm ci`, `npm run dev`. Validate with `npm test` and `npm run build`. New artwork tests cover non-square inputs, alpha, invalid settings, both scales, relief depths, connectivity, collisions, and inventory consistency.
+
+## Original project documentation
 
 Turn your CryptoPunk into a brick bust you can really build.
 
