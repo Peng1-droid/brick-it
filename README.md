@@ -1,4 +1,4 @@
-# NFT to Bricks
+# Brick It
 
 This fork adds general NFT artwork voxelization to [Punk to Bricks](https://github.com/hs7j4yk4sz-boop/punk-to-bricks). Upload, drop, or paste a PNG, JPEG, WebP, or GIF image from any collection. Choose 16, 24, or 32 voxels on the longest edge and a flat mosaic or 4/8-plate relief. The full image is area-averaged with its aspect ratio preserved and matched to opaque LEGO colours; transparent areas are composited on white. Animated files use one decoded frame.
 

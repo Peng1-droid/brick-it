@@ -116,7 +116,7 @@ export class PageMaker {
   x.fillText(`approx. ${m.dims[0]} × ${m.dims[1]} × ${m.dims[2]} cm`, 80, 895);
   x.font = `22px ${FONT}`; x.fillStyle = 'rgba(255,255,255,.85)';
   x.font = `19px ${FONT}`;
-  x.fillText('Made with NFT to Bricks · Unofficial fan project · Not affiliated with, sponsored or endorsed by the LEGO Group, BrickLink or the CryptoPunks project.', 80, 1024);
+  x.fillText('Made with Brick It · Unofficial fan project · Not affiliated with, sponsored or endorsed by the LEGO Group, BrickLink or the CryptoPunks project.', 80, 1024);
   x.fillText('LEGO® is a trademark of the LEGO Group. Parts data: Rebrickable. Computer-checked only, not physically built. Provided "as is", without warranty.', 80, 1052);
       return pg;
     }
@@ -183,7 +183,7 @@ export const PAGE_SIZE = [PW, PH] as const;
 export async function makeInstructions(m: Model, grid: PunkGrid, o: PageOptions & { onProgress?: (done: number, total: number) => void }): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [PW, PH], compress: true, hotfixes: ['px_scaling'] });
-  pdf.setProperties({ title: `${o.label ? `Token ${o.label}` : 'Your artwork'} brick build — instructions`, creator: 'NFT to Bricks' });
+  pdf.setProperties({ title: `${o.label ? `Token ${o.label}` : 'Your artwork'} brick build — instructions`, creator: 'Brick It' });
   await drawPages(m, grid, o, (pg, n, total) => {
     if (n > 1) pdf.addPage([PW, PH], 'landscape');
     pdf.addImage(pg.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, PW, PH, undefined, 'FAST');

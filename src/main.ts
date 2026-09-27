@@ -289,7 +289,7 @@ $('dl-kit').addEventListener('click', () => run('Kit', async () => {
   const m = current()!, name = baseName();
   progress('Drawing the instructions…', 0);
   const pdf = await makeInstructions(m, grid!, { label: plateLabel(), renderSize: isPhone ? 800 : 1100, onProgress: (d, t) => progress(`Drawing page ${d} of ${t}…`, d / t) });
-  const readme = [`${name} — made with NFT to Bricks`, '', `${m.checks.pieces} pieces · ${m.steps.length} steps · ${m.bom.length} lots · about ${m.dims.join(' × ')} cm`, '',
+  const readme = [`${name} — made with Brick It`, '', `${m.checks.pieces} pieces · ${m.steps.length} steps · ${m.bom.length} lots · about ${m.dims.join(' × ')} cm`, '',
     `${name}-instructions.pdf   step-by-step instructions, one page per layer`, `${name}-parts.csv   parts list (BrickLink part and colour numbers)`, '',
     'To order the bricks, use "Buy the bricks" on the site: it makes your LEGO Pick a Brick and BrickLink lists.', '',
     'Models are generated automatically and checked by software only. They have NOT been physically built. Provided "as is", without warranty of any kind.',
@@ -425,7 +425,7 @@ function renderBustSub() {
 function shareLink() {
   const m = current();
   const text = m
-    ? `I turned my NFT artwork into a ${m.checks.pieces.toLocaleString('en')}-piece brick build you can really build 🧱\n\nMade with NFT to Bricks, inspired by @victormustar's Microduck.`
+    ? `I turned my NFT artwork into a ${m.checks.pieces.toLocaleString('en')}-piece brick build you can really build 🧱\n\nMade with Brick It, inspired by @victormustar's Microduck.`
     : 'Turn your NFT artwork into a brick build you can really build 🧱';
   const url = location.origin + location.pathname;
   $<HTMLAnchorElement>('share-x').href = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
